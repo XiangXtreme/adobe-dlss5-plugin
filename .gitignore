@@ -1,0 +1,39 @@
+# Build and Output
+build/
+bin/
+obj/
+dist/*.zip
+dist/Adobe-DLSS5-Neural-Video-*/
+
+# Visual Studio / MSVC
+.vs/
+*.vcxproj.user
+*.suo
+*.user
+*.opendb
+*.db
+*.exp
+*.lib
+*.ilk
+*.pdb
+
+# Logs and Temp
+*.log
+*.tmp
+SCRPriorState.json
+
+# Large AI Binary Models (distributed via Releases)
+nvngx_dlssnr.dll
+*.bin
+*.pt
+*.onnx
+
+# Local Third-Party Dependencies
+third_party/Adobe_AE_SDK/
+third_party/DaVinci-Resolve-DLSS5/
+third_party/runtime/*.dll
+
+# Third Party SDK Archive
+*.zip
+*.tar.gz
+*.7z
