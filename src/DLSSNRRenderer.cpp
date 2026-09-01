@@ -304,16 +304,13 @@ private:
     }
 
     void SetOptions(const DLSSParameters& parameters) const {
-        const auto clampControl = [](float value) {
-            return std::isfinite(value) ? std::clamp(value, 0.0f, 2.0f) : 1.0f;
-        };
         m_setOptions(
             1,
             std::clamp(parameters.style, 0, 3),
-            clampControl(parameters.intensity),
-            clampControl(parameters.localTone),
-            clampControl(parameters.localStructure),
-            clampControl(parameters.skinStructure),
+            NormalizeDLSSControl(parameters.intensity),
+            NormalizeDLSSControl(parameters.localTone),
+            NormalizeDLSSControl(parameters.localStructure),
+            NormalizeDLSSControl(parameters.skinStructure),
             0,
             0,
             0,

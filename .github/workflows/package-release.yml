@@ -1,0 +1,159 @@
+name: Package Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version without the v prefix
+        required: true
+        default: 1.0.0
+        type: string
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  RUNTIME_RELEASE_TAG: runtime-v1.0.0
+  RUNTIME_ARCHIVE_NAME: Adobe-DLSS5-Runtime-v1.0.0-Win64.zip
+  RUNTIME_ARCHIVE_SHA256: 62BF7E2D75E96562E6A2B279A1B4D12EC769AC8B7A13A7A98AB49EEF38EAF476
+
+jobs:
+  package-release:
+    name: Package and publish
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Resolve release version
+        shell: pwsh
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $version = if ($env:EVENT_NAME -eq "workflow_dispatch") {
+              $env:REQUESTED_VERSION
+          } else {
+              $env:REF_NAME -replace '^v', ''
+          }
+
+          if ($version -notmatch '^\d+\.\d+\.\d+$') {
+              throw "Release version must use MAJOR.MINOR.PATCH format."
+          }
+
+          "RELEASE_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "RELEASE_TAG=v$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Download and verify runtime components
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $downloadDirectory = Join-Path $env:GITHUB_WORKSPACE "build\runtime-download"
+          $extractDirectory = Join-Path $env:GITHUB_WORKSPACE "build\runtime-input"
+          $archivePath = Join-Path $downloadDirectory $env:RUNTIME_ARCHIVE_NAME
+          New-Item -ItemType Directory -Path $downloadDirectory, $extractDirectory -Force | Out-Null
+
+          $runtimeUrl = "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/releases/download/$env:RUNTIME_RELEASE_TAG/$env:RUNTIME_ARCHIVE_NAME"
+          Invoke-WebRequest -Uri $runtimeUrl -OutFile $archivePath
+
+          $actualHash = (Get-FileHash -LiteralPath $archivePath -Algorithm SHA256).Hash
+          if ($actualHash -ne $env:RUNTIME_ARCHIVE_SHA256) {
+              throw "Runtime archive hash mismatch."
+          }
+
+          Expand-Archive -LiteralPath $archivePath -DestinationPath $extractDirectory
+
+          $requiredFiles = @(
+              "DLSS_Neural_Video.aex",
+              "dlssnr_host.dll",
+              "nvngx_dlssnr.dll"
+          )
+          foreach ($fileName in $requiredFiles) {
+              $componentPath = Join-Path $extractDirectory $fileName
+              if (-not (Test-Path -LiteralPath $componentPath -PathType Leaf)) {
+                  throw "Runtime component is missing: $fileName"
+              }
+          }
+
+          $pluginDirectory = Join-Path $env:GITHUB_WORKSPACE "build\Release"
+          $runtimeDirectory = Join-Path $env:GITHUB_WORKSPACE "third_party\runtime"
+          New-Item -ItemType Directory -Path $pluginDirectory, $runtimeDirectory -Force | Out-Null
+          Copy-Item -LiteralPath (Join-Path $extractDirectory "DLSS_Neural_Video.aex") -Destination $pluginDirectory -Force
+          Copy-Item -LiteralPath (Join-Path $extractDirectory "dlssnr_host.dll") -Destination $runtimeDirectory -Force
+          Copy-Item -LiteralPath (Join-Path $extractDirectory "nvngx_dlssnr.dll") -Destination $runtimeDirectory -Force
+
+      - name: Build release package
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          & .\scripts\package-release.ps1 -Version $env:RELEASE_VERSION -Configuration Release
+
+          $packagePath = Join-Path $env:GITHUB_WORKSPACE "dist\Adobe-DLSS5-Neural-Video-v$env:RELEASE_VERSION-Win64.zip"
+          if (-not (Test-Path -LiteralPath $packagePath -PathType Leaf)) {
+              throw "Release package was not created."
+          }
+
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $expectedEntries = @(
+              "DLSS_Neural_Video.aex",
+              "dlssnr_host.dll",
+              "Install.bat",
+              "Install.ps1",
+              "LICENSE",
+              "nvngx_dlssnr.dll",
+              "README.md",
+              "README_ZH.md",
+              "Uninstall.bat",
+              "Uninstall.ps1"
+          ) | Sort-Object
+
+          $archive = [IO.Compression.ZipFile]::OpenRead($packagePath)
+          try {
+              $actualEntries = $archive.Entries |
+                  Where-Object { -not $_.FullName.EndsWith("/") } |
+                  ForEach-Object FullName |
+                  Sort-Object
+          } finally {
+              $archive.Dispose()
+          }
+
+          $entryDifference = Compare-Object -ReferenceObject $expectedEntries -DifferenceObject $actualEntries
+          if ($entryDifference) {
+              throw "Release package contents do not match the expected file list."
+          }
+
+          "PACKAGE_PATH=$packagePath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Publish GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          gh release view $env:RELEASE_TAG --repo $env:GITHUB_REPOSITORY --json tagName *> $null
+          $releaseExists = $LASTEXITCODE -eq 0
+
+          if ($releaseExists) {
+              gh release upload $env:RELEASE_TAG $env:PACKAGE_PATH --repo $env:GITHUB_REPOSITORY --clobber
+          } else {
+              gh release create $env:RELEASE_TAG $env:PACKAGE_PATH `
+                  --repo $env:GITHUB_REPOSITORY `
+                  --target $env:GITHUB_SHA `
+                  --title "Adobe DLSS5 Neural Video v$env:RELEASE_VERSION" `
+                  --generate-notes
+          }
+
+          if ($LASTEXITCODE -ne 0) {
+              throw "GitHub release publishing failed."
+          }

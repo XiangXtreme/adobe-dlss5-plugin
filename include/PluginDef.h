@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 #ifndef PLUG_IN_NAME
 #define PLUG_IN_NAME "DLSS Neural Video"
 #endif
@@ -11,6 +13,23 @@
 #ifndef PLUG_IN_CATEGORY
 #define PLUG_IN_CATEGORY "DLSS Experimental"
 #endif
+
+inline constexpr float DLSS_CONTROL_MIN = 0.0f;
+inline constexpr float DLSS_CONTROL_MAX = 2.5f;
+inline constexpr float DLSS_CONTROL_DEFAULT = 1.0f;
+
+inline float NormalizeDLSSControl(float value) noexcept {
+    if (!std::isfinite(value)) {
+        return DLSS_CONTROL_DEFAULT;
+    }
+    if (value < DLSS_CONTROL_MIN) {
+        return DLSS_CONTROL_MIN;
+    }
+    if (value > DLSS_CONTROL_MAX) {
+        return DLSS_CONTROL_MAX;
+    }
+    return value;
+}
 
 // Parameter IDs
 enum {
@@ -45,10 +64,10 @@ enum DLSSOutputView {
 struct DLSSParameters {
     bool enabled = true;
     int style = 0;
-    float intensity = 1.0f;
-    float localTone = 1.0f;
-    float localStructure = 1.0f;
-    float skinStructure = 1.0f;
+    float intensity = DLSS_CONTROL_DEFAULT;
+    float localTone = DLSS_CONTROL_DEFAULT;
+    float localStructure = DLSS_CONTROL_DEFAULT;
+    float skinStructure = DLSS_CONTROL_DEFAULT;
     int outputView = DLSS_VIEW_PROCESSED;
     float outputMix = 1.0f;
 };

@@ -39,10 +39,10 @@ Provides AI-powered same-resolution neural reconstruction, micro-structure synth
 | :--- | :--- | :--- | :--- |
 | **Enable DLSS Neural Rendering** | Checkbox | `True` | Master bypass switch for the effect. |
 | **Style** | Popup | `Default` | Rendering style (`Default`, `Natural`, `Cinema`, `Style 3`). |
-| **Intensity** | Float Slider | `1.00` | Strength of AI reconstruction (0.0 to 2.0). |
-| **Local Tone** | Float Slider | `1.00` | Micro-contrast and local tonal enhancement. |
-| **Local Structure** | Float Slider | `1.00` | Fine texture synthesis and edge reconstruction. |
-| **Skin Structure** | Float Slider | `1.00` | Skin tone texture preservation weight. |
+| **Intensity** | Float Slider | `1.00` | Strength of AI reconstruction (0.0 to 2.5). |
+| **Local Tone** | Float Slider | `1.00` | Micro-contrast and local tonal enhancement (0.0 to 2.5). |
+| **Local Structure** | Float Slider | `1.00` | Fine texture synthesis and edge reconstruction (0.0 to 2.5). |
+| **Skin Structure** | Float Slider | `1.00` | Skin tone texture preservation weight (0.0 to 2.5). |
 | **Output View** | Popup | `Processed` | Output mode (`Processed`, `Difference x10`, `Left / Right Compare`). |
 | **Output Mix** | Float Slider | `1.00` | Wet/Dry mix between processed result and original frame. |
 
@@ -88,6 +88,8 @@ ctest --test-dir build -C Release --output-on-failure
 # 4. Package Release after placing the runtime files in third_party/runtime
 pwsh -File .\scripts\package-release.ps1
 ```
+
+GitHub releases are packaged by the checksum-pinned [Package Release workflow](.github/workflows/package-release.yml). See [Release Automation](docs/releasing.md) for the publishing process.
 
 ---
 

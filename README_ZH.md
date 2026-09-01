@@ -39,10 +39,10 @@
 | :--- | :--- | :--- | :--- |
 | **Enable DLSS Neural Rendering** | 复选框 | `开 (True)` | 插件全局总开关。 |
 | **Style** | 下拉菜单 | `Default` | 渲染风格（Default / Natural / Cinema / Style 3）。 |
-| **Intensity** | 浮点滑块 | `1.00` | AI 重构与增强强度（范围 0.0 ~ 2.0）。 |
-| **Local Tone** | 浮点滑块 | `1.00` | 局部对比度与明暗层次增强。 |
-| **Local Structure** | 浮点滑块 | `1.00` | 微观纹理重建与边缘锐化。 |
-| **Skin Structure** | 浮点滑块 | `1.00` | 人像肤质细节与质感保护权重。 |
+| **Intensity** | 浮点滑块 | `1.00` | AI 重构与增强强度（范围 0.0 ~ 2.5）。 |
+| **Local Tone** | 浮点滑块 | `1.00` | 局部对比度与明暗层次增强（范围 0.0 ~ 2.5）。 |
+| **Local Structure** | 浮点滑块 | `1.00` | 微观纹理重建与边缘锐化（范围 0.0 ~ 2.5）。 |
+| **Skin Structure** | 浮点滑块 | `1.00` | 人像肤质细节与质感保护权重（范围 0.0 ~ 2.5）。 |
 | **Output View** | 下拉菜单 | `Processed` | 输出视图（处理结果 / 10倍差异对比 / 左右分屏对比）。 |
 | **Output Mix** | 浮点滑块 | `1.00` | 处理结果与原始画面的混合比率 (0.0 ~ 1.0)。 |
 
@@ -92,6 +92,8 @@ ctest --test-dir build -C Release --output-on-failure
 # 4. 将运行时文件放入 third_party/runtime 后打包发布
 pwsh -File .\scripts\package-release.ps1
 ```
+
+GitHub Release 由固定组件包 SHA-256 的 [Package Release 工作流](.github/workflows/package-release.yml)自动打包。发布流程详见 [Release Automation](docs/releasing.md)。
 
 ---
 

@@ -11,9 +11,7 @@ All notable changes to this project will be documented in this file.
 - **Interactive UI Parameters**:
   - `Enable DLSS Neural Rendering` (Global Bypass toggle)
   - `Style` (Default / Natural / Cinema / Style 3)
-  - `Intensity` (0.0 to 2.0 AI reconstruction weight)
-  - `Local Tone` & `Local Structure` (Micro-contrast and fine detail synthesis)
-  - `Skin Structure` (Skin texture preservation)
+  - `Intensity`, `Local Tone`, `Local Structure`, and `Skin Structure` (0.0 to 2.5 neural reconstruction, tone, detail, and skin weights)
   - `Output View` (`Processed`, `Difference x10` for inspection, `Left / Right Compare` split view)
   - `Output Mix` (Wet/Dry blending)
 - **High-Performance Optimizations**:
