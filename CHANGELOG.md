@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.0.2] - 2026-09-01
 
 ### Fixed
 - Restored Premiere Pro's default ARGB 8-bit render path to prevent corrupted output.

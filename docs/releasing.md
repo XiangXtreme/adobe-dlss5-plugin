@@ -10,7 +10,7 @@ Release packaging uses a tested binary component archive containing:
 - `dlssnr_host.dll`
 - `nvngx_dlssnr.dll`
 
-The component archive is stored in the `runtime-v1.0.1` prerelease. Its filename and SHA-256 digest are pinned in `.github/workflows/package-release.yml`. The workflow stops before packaging if the digest or required file list does not match.
+The component archive is stored in the `runtime-v1.0.2` prerelease. Its filename and SHA-256 digest are pinned in `.github/workflows/package-release.yml`. The workflow stops before packaging if the digest or required file list does not match.
 
 ## Publish a Version
 
