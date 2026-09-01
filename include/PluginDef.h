@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 
 #ifndef PLUG_IN_NAME
@@ -17,6 +18,7 @@
 inline constexpr float DLSS_CONTROL_MIN = 0.0f;
 inline constexpr float DLSS_CONTROL_MAX = 5.0f;
 inline constexpr float DLSS_CONTROL_DEFAULT = 1.0f;
+inline constexpr float DLSS_RUNTIME_INTENSITY_MAX = 1.0f;
 
 inline float NormalizeDLSSControl(float value) noexcept {
     if (!std::isfinite(value)) {
@@ -29,6 +31,14 @@ inline float NormalizeDLSSControl(float value) noexcept {
         return DLSS_CONTROL_MAX;
     }
     return value;
+}
+
+inline float DLSSRuntimeIntensity(float value) noexcept {
+    return (std::min)(NormalizeDLSSControl(value), DLSS_RUNTIME_INTENSITY_MAX);
+}
+
+inline float DLSSIntensityGain(float value) noexcept {
+    return (std::max)(NormalizeDLSSControl(value), DLSS_RUNTIME_INTENSITY_MAX);
 }
 
 // Parameter IDs

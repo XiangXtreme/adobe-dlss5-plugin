@@ -6,11 +6,8 @@ on:
       version:
         description: Release version without the v prefix
         required: true
-        default: 1.0.1
+        default: 1.0.2
         type: string
-  push:
-    tags:
-      - "v*.*.*"
 
 permissions:
   contents: write
@@ -20,6 +17,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
+  RELEASE_READY: "false"
   RUNTIME_RELEASE_TAG: runtime-v1.0.1
   RUNTIME_ARCHIVE_NAME: Adobe-DLSS5-Runtime-v1.0.1-Win64.zip
   RUNTIME_ARCHIVE_SHA256: 34876E9210ABB023E6B2852DE33EA85766EBF667CE53AA67A60D550503CF9618
@@ -31,6 +29,13 @@ jobs:
     timeout-minutes: 20
 
     steps:
+      - name: Verify release gate
+        shell: pwsh
+        run: |
+          if ($env:RELEASE_READY -ne "true") {
+              throw "Release packaging requires completed AE and Premiere Pro host validation."
+          }
+
       - name: Check out source
         uses: actions/checkout@v6
 
@@ -97,25 +102,33 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          & .\scripts\package-release.ps1 -Version $env:RELEASE_VERSION -Configuration Release
-
+          $packageName = "Adobe-DLSS5-Neural-Video-v$env:RELEASE_VERSION"
+          $distributionRoot = Join-Path $env:GITHUB_WORKSPACE "dist"
+          $packageDirectory = Join-Path $distributionRoot $packageName
           $packagePath = Join-Path $env:GITHUB_WORKSPACE "dist\Adobe-DLSS5-Neural-Video-v$env:RELEASE_VERSION-Win64.zip"
-          if (-not (Test-Path -LiteralPath $packagePath -PathType Leaf)) {
-              throw "Release package was not created."
+          New-Item -ItemType Directory -Path $packageDirectory -Force | Out-Null
+
+          $packageFiles = [ordered]@{
+              (Join-Path $env:GITHUB_WORKSPACE "build\Release\DLSS_Neural_Video.aex") = "DLSS_Neural_Video.aex"
+              (Join-Path $env:GITHUB_WORKSPACE "third_party\runtime\dlssnr_host.dll") = "dlssnr_host.dll"
+              (Join-Path $env:GITHUB_WORKSPACE "third_party\runtime\nvngx_dlssnr.dll") = "nvngx_dlssnr.dll"
+              (Join-Path $env:GITHUB_WORKSPACE "INSTALL.md") = "INSTALL.md"
           }
+          foreach ($entry in $packageFiles.GetEnumerator()) {
+              if (-not (Test-Path -LiteralPath $entry.Key -PathType Leaf)) {
+                  throw "Required package input is missing: $($entry.Key)"
+              }
+              Copy-Item -LiteralPath $entry.Key -Destination (Join-Path $packageDirectory $entry.Value) -Force
+          }
+
+          Compress-Archive -Path (Join-Path $packageDirectory "*") -DestinationPath $packagePath -CompressionLevel Optimal
 
           Add-Type -AssemblyName System.IO.Compression.FileSystem
           $expectedEntries = @(
               "DLSS_Neural_Video.aex",
               "dlssnr_host.dll",
-              "Install.bat",
-              "Install.ps1",
-              "LICENSE",
-              "nvngx_dlssnr.dll",
-              "README.md",
-              "README_ZH.md",
-              "Uninstall.bat",
-              "Uninstall.ps1"
+              "INSTALL.md",
+              "nvngx_dlssnr.dll"
           ) | Sort-Object
 
           $archive = [IO.Compression.ZipFile]::OpenRead($packagePath)

@@ -21,7 +21,7 @@
 
 - **⚡ AE / PR 双宿主原生支持**：单个 `.aex` 插件文件，同时支持 **Adobe After Effects** 与 **Adobe Premiere Pro**（2022 ~ 2026）。
 - **🧠 DLSS 5 神经渲染引擎**：充分利用 NVIDIA Tensor Core 执行同分辨率下的深度学习神经重建与纹理合成。
-- **🎨 明确的宿主像素格式支持**：SmartRender 支持 AE ARGB 8/16/32-bpc 与 Premiere BGRA 8-bit/32f，不再通过行距猜测格式。神经运行时使用 RGBA8 桥接；浮点旁路及对比视图的原图部分保留宿主数值。
+- **🎨 明确的宿主像素格式支持**：SmartRender 支持 AE ARGB 8/16/32-bpc 与 Premiere 默认 ARGB 8-bit 路径，不再通过行距猜测格式。神经运行时使用 RGBA8 桥接；浮点旁路及对比视图的原图部分保留宿主数值。
 - **🔍 实时视觉对比与调试视图**：
   - `Processed`：完整神经网络重构输出。
   - `Difference x10`：10倍差异放大视图（直观查看 AI 修复/增补的微观细节）。
@@ -39,7 +39,7 @@
 | :--- | :--- | :--- | :--- |
 | **Enable DLSS Neural Rendering** | 复选框 | `开 (True)` | 插件全局总开关。 |
 | **Style** | 下拉菜单 | `Default` | 渲染风格（Default / Natural / Cinema / Style 3）。 |
-| **Intensity** | 浮点滑块 | `1.00` | AI 重构与增强强度（范围 0.0 ~ 5.0）。 |
+| **Intensity** | 浮点滑块 | `1.00` | 0.0 ~ 1.0 为神经强度，1.0 ~ 5.0 为可见的输出增强。 |
 | **Local Tone** | 浮点滑块 | `1.00` | 局部对比度与明暗层次增强（范围 0.0 ~ 5.0）。 |
 | **Local Structure** | 浮点滑块 | `1.00` | 微观纹理重建与边缘锐化（范围 0.0 ~ 5.0）。 |
 | **Skin Structure** | 浮点滑块 | `1.00` | 人像肤质细节与质感保护权重（范围 0.0 ~ 5.0）。 |
@@ -50,16 +50,11 @@
 
 ## 📦 安装方法
 
-### 方式一：一键自动安装（推荐）
-1. 从 [Releases](https://github.com/XiangXtreme/adobe-dlss5-plugin/releases) 页面下载发行包压缩包 `Adobe-DLSS5-Neural-Video-v1.0.1-Win64.zip`。
-2. 解压后，双击运行 **`Install.bat`**。
-3. 打开 After Effects 或 Premiere Pro，在以下位置找到插件：
-   **`效果 (Effect) > DLSS Experimental > DLSS Neural Video`**
+从 [Releases](https://github.com/XiangXtreme/adobe-dlss5-plugin/releases) 下载 Windows ZIP，将 `DLSS_Neural_Video.aex`、`dlssnr_host.dll` 和 `nvngx_dlssnr.dll` 复制到：
 
-### 方式二：手动安装
-将 `DLSS_Neural_Video.aex`、`dlssnr_host.dll` 和 `nvngx_dlssnr.dll` 复制到以下任意一个目录：
-- **AE 专属目录**：`[你的AE安装路径]\Support Files\Plug-ins\Effects\`
-- **通用公共目录**：`C:\Program Files\Adobe\Common\Plug-ins\7.0\MediaCore\`
+`C:\Program Files\Adobe\Common\Plug-ins\7.0\MediaCore`
+
+替换文件前请关闭 AE 和 Premiere。完整步骤见 [INSTALL.md](INSTALL.md)。
 
 ---
 
@@ -89,8 +84,6 @@ cmake -B build -G "Visual Studio 17 2022" -A x64
 cmake --build build --config Release
 ctest --test-dir build -C Release --output-on-failure
 
-# 4. 将运行时文件放入 third_party/runtime 后打包发布
-pwsh -File .\scripts\package-release.ps1
 ```
 
 GitHub Release 由固定组件包 SHA-256 的 [Package Release 工作流](.github/workflows/package-release.yml)自动打包。发布流程详见 [Release Automation](docs/releasing.md)。

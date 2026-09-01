@@ -307,7 +307,7 @@ private:
         m_setOptions(
             1,
             std::clamp(parameters.style, 0, 3),
-            NormalizeDLSSControl(parameters.intensity),
+            DLSSRuntimeIntensity(parameters.intensity),
             NormalizeDLSSControl(parameters.localTone),
             NormalizeDLSSControl(parameters.localStructure),
             NormalizeDLSSControl(parameters.skinStructure),

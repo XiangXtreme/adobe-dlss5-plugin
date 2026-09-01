@@ -1,6 +1,6 @@
 # Release Automation
 
-The `Package Release` workflow creates the Windows installation archive and publishes it to GitHub Releases.
+The `Package Release` workflow creates the Windows archive and publishes it to GitHub Releases.
 
 ## Inputs
 
@@ -17,10 +17,10 @@ The component archive is stored in the `runtime-v1.0.1` prerelease. Its filename
 Run the workflow manually:
 
 ```powershell
-gh workflow run package-release.yml -f version=1.0.1
+gh workflow run package-release.yml -f version=1.0.2
 ```
 
-Alternatively, push a semantic version tag such as `v1.0.1`. The workflow validates the version, downloads and verifies the component archive, runs `scripts/package-release.ps1`, checks the ZIP contents, and creates or updates the matching GitHub Release.
+The workflow validates the version, downloads and verifies the component archive, packages the three runtime files with `INSTALL.md`, checks the ZIP contents, and creates or updates the matching GitHub Release. Enable its release gate only after the exact AEX has passed host validation in both After Effects and Premiere Pro.
 
 ## Update Binary Components
 

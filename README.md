@@ -21,7 +21,7 @@ Provides AI-powered same-resolution neural reconstruction, micro-structure synth
 
 - **⚡ Native Adobe Dual-Host Support**: A single unified `.aex` plugin automatically loaded by both **Adobe After Effects** and **Adobe Premiere Pro** (2022 ~ 2026).
 - **🧠 DLSS 5 Feature 18 Architecture**: Harnesses NVIDIA Tensor Cores for real-time same-resolution neural rendering and texture enhancement.
-- **🎨 Explicit Host Pixel Formats**: SmartRender supports AE ARGB 8/16/32-bpc and Premiere BGRA 8-bit/32f without row-pitch guessing. The neural runtime uses an RGBA8 bridge; float bypass and original-side comparisons retain host values.
+- **🎨 Explicit Host Pixel Formats**: SmartRender supports AE ARGB 8/16/32-bpc and Premiere's default ARGB 8-bit path without row-pitch guessing. The neural runtime uses an RGBA8 bridge; float bypass and original-side comparisons retain host values.
 - **🔍 Realtime Visual Comparison Modes**:
   - `Processed`: Full neural reconstruction output.
   - `Difference x10`: 10x amplified difference view to inspect subtle neural details.
@@ -39,7 +39,7 @@ Provides AI-powered same-resolution neural reconstruction, micro-structure synth
 | :--- | :--- | :--- | :--- |
 | **Enable DLSS Neural Rendering** | Checkbox | `True` | Master bypass switch for the effect. |
 | **Style** | Popup | `Default` | Rendering style (`Default`, `Natural`, `Cinema`, `Style 3`). |
-| **Intensity** | Float Slider | `1.00` | Strength of AI reconstruction (0.0 to 5.0). |
+| **Intensity** | Float Slider | `1.00` | Neural strength from 0.0 to 1.0, with visible output overdrive from 1.0 to 5.0. |
 | **Local Tone** | Float Slider | `1.00` | Micro-contrast and local tonal enhancement (0.0 to 5.0). |
 | **Local Structure** | Float Slider | `1.00` | Fine texture synthesis and edge reconstruction (0.0 to 5.0). |
 | **Skin Structure** | Float Slider | `1.00` | Skin tone texture preservation weight (0.0 to 5.0). |
@@ -50,16 +50,11 @@ Provides AI-powered same-resolution neural reconstruction, micro-structure synth
 
 ## 📦 Installation
 
-### Option 1: 1-Click Installer (Recommended)
-1. Download the release ZIP `Adobe-DLSS5-Neural-Video-v1.0.1-Win64.zip` from [Releases](https://github.com/XiangXtreme/adobe-dlss5-plugin/releases).
-2. Unzip and run **`Install.bat`**.
-3. Launch After Effects / Premiere Pro and find the plugin under:
-   `Effect > DLSS Experimental > DLSS Neural Video`
+Download the Windows ZIP from [Releases](https://github.com/XiangXtreme/adobe-dlss5-plugin/releases), then copy `DLSS_Neural_Video.aex`, `dlssnr_host.dll`, and `nvngx_dlssnr.dll` to:
 
-### Option 2: Manual Installation
-Copy `DLSS_Neural_Video.aex`, `dlssnr_host.dll`, and `nvngx_dlssnr.dll` to:
-- **AE Specific Folder**: `[Your AE Path]\Support Files\Plug-ins\Effects\`
-- **OR Universal MediaCore Folder**: `C:\Program Files\Adobe\Common\Plug-ins\7.0\MediaCore\`
+`C:\Program Files\Adobe\Common\Plug-ins\7.0\MediaCore`
+
+Close AE and Premiere before replacing the files. See [INSTALL.md](INSTALL.md) for the complete steps.
 
 ---
 
@@ -85,8 +80,6 @@ cmake -B build -G "Visual Studio 17 2022" -A x64
 cmake --build build --config Release
 ctest --test-dir build -C Release --output-on-failure
 
-# 4. Package Release after placing the runtime files in third_party/runtime
-pwsh -File .\scripts\package-release.ps1
 ```
 
 GitHub releases are packaged by the checksum-pinned [Package Release workflow](.github/workflows/package-release.yml). See [Release Automation](docs/releasing.md) for the publishing process.

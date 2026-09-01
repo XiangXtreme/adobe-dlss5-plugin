@@ -93,6 +93,12 @@ Rgb ComposeOutput(
         FiniteOrZero(original.g),
         FiniteOrZero(original.b)
     };
+    const float intensityGain = DLSSIntensityGain(params.intensity);
+    processed = {
+        original.r + (FiniteOrZero(processed.r) - original.r) * intensityGain,
+        original.g + (FiniteOrZero(processed.g) - original.g) * intensityGain,
+        original.b + (FiniteOrZero(processed.b) - original.b) * intensityGain
+    };
 
     if (params.outputView == DLSS_VIEW_DIFF_10X) {
         return {

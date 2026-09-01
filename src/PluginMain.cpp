@@ -231,7 +231,7 @@ About(
     static_cast<void>(output);
     PF_SPRINTF(
         out_data->return_msg,
-        "%s v1.0.1\r\nNVIDIA DLSS 5 Neural Rendering Filter for After Effects & Premiere Pro.\r\nBased on TensorRT NGX Feature 18 Architecture.",
+        "%s v1.0.2\r\nNVIDIA DLSS 5 Neural Rendering Filter for After Effects & Premiere Pro.\r\nBased on TensorRT NGX Feature 18 Architecture.",
         PLUG_IN_NAME);
     return PF_Err_NONE;
 }
@@ -243,25 +243,14 @@ GlobalSetup(
     PF_ParamDef* params[],
     PF_LayerDef* output)
 {
+    static_cast<void>(in_data);
     static_cast<void>(params);
     static_cast<void>(output);
     LogMessage("GlobalSetup called");
     PF_Err err = PF_Err_NONE;
-    out_data->my_version = PF_VERSION(1, 0, 1, PF_Stage_RELEASE, 1);
+    out_data->my_version = PF_VERSION(1, 0, 2, PF_Stage_RELEASE, 1);
     out_data->out_flags = PF_OutFlag_DEEP_COLOR_AWARE;
     out_data->out_flags2 = PF_OutFlag2_FLOAT_COLOR_AWARE | PF_OutFlag2_SUPPORTS_SMART_RENDER | PF_OutFlag2_SUPPORTS_THREADED_RENDERING;
-
-    if (in_data->appl_id == kAppID_Premiere) {
-        AEFX_SuiteScoper<PF_PixelFormatSuite1> pixelFormatSuite(
-            in_data,
-            kPFPixelFormatSuite,
-            kPFPixelFormatSuiteVersion1,
-            out_data
-        );
-        ERR(pixelFormatSuite->ClearSupportedPixelFormats(in_data->effect_ref));
-        ERR(pixelFormatSuite->AddSupportedPixelFormat(in_data->effect_ref, PrPixelFormat_BGRA_4444_32f));
-        ERR(pixelFormatSuite->AddSupportedPixelFormat(in_data->effect_ref, PrPixelFormat_BGRA_4444_8u));
-    }
 
     return err;
 }

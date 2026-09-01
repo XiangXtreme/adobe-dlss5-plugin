@@ -21,10 +21,10 @@ We welcome contributions, issues, and feature requests!
    ctest --test-dir build -C Release --output-on-failure
    ```
 
-4. **Testing in After Effects**:
-   ```powershell
-   pwsh -File .\scripts\install-plugin.ps1
-   ```
+4. **Testing in Adobe Hosts**:
+   - Close After Effects and Premiere Pro.
+   - Copy `build\Release\DLSS_Neural_Video.aex` and both files from `third_party\runtime` to `C:\Program Files\Adobe\Common\Plug-ins\7.0\MediaCore`.
+   - Test the same project in both hosts before submitting.
 
 ## Pull Request Guidelines
 

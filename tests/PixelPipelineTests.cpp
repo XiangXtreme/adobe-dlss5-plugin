@@ -211,6 +211,31 @@ void TestNeuralControlRange() {
     CHECK(NormalizeDLSSControl(6.0f) == DLSS_CONTROL_MAX);
     CHECK(NormalizeDLSSControl(std::numeric_limits<float>::infinity()) == DLSS_CONTROL_DEFAULT);
     CHECK(NormalizeDLSSControl(std::numeric_limits<float>::quiet_NaN()) == DLSS_CONTROL_DEFAULT);
+    CHECK(DLSSRuntimeIntensity(0.5f) == 0.5f);
+    CHECK(DLSSRuntimeIntensity(2.0f) == DLSS_RUNTIME_INTENSITY_MAX);
+    CHECK(DLSSIntensityGain(0.5f) == 1.0f);
+    CHECK(DLSSIntensityGain(2.0f) == 2.0f);
+}
+
+void TestIntensityOverdrive() {
+    const std::array<uint8_t, 4> input = { 255, 100, 100, 100 };
+    const std::array<uint8_t, 4> processed = { 120, 90, 80, 255 };
+    std::array<uint8_t, 4> output = {};
+    DLSSParameters parameters;
+    parameters.intensity = 2.0f;
+
+    CHECK(PixelPipeline::WriteFromRgba8(
+        input.data(),
+        processed.data(),
+        processed.size(),
+        output.data(),
+        1,
+        1,
+        4,
+        4,
+        HostColorFormat::AE_ARGB_8u,
+        parameters));
+    CHECK((output == std::array<uint8_t, 4>{ 255, 140, 80, 60 }));
 }
 
 } // namespace
@@ -224,6 +249,7 @@ int main() {
     TestValidation();
     TestNegativeRowPitch();
     TestNeuralControlRange();
+    TestIntensityOverdrive();
 
     if (g_failures != 0) {
         std::cerr << g_failures << " test assertion(s) failed\n";

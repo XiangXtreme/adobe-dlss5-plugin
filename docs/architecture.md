@@ -2,14 +2,14 @@
 
 ## Overview
 
-The **Adobe DLSS 5 Neural Video Plugin** bridges After Effects ARGB 8/16/32-bpc and Premiere Pro BGRA 8-bit/32f framebuffers to the neural runtime.
+The **Adobe DLSS 5 Neural Video Plugin** bridges After Effects ARGB 8/16/32-bpc and Premiere Pro's default ARGB 8-bit framebuffers to the neural runtime.
 
 ```
 ┌────────────────────────────────────────────────────────┐
 │      Adobe After Effects / Premiere Pro Host           │
 │  (PF_Cmd_SMART_PRE_RENDER / PF_Cmd_SMART_RENDER)       │
 └───────────────────────────┬────────────────────────────┘
-                            │ (AE ARGB 8/16/32-bpc, PR BGRA 8/32f)
+                            │ (AE ARGB 8/16/32-bpc, PR ARGB 8-bit)
                             ▼
 ┌────────────────────────────────────────────────────────┐
 │        PixelPipeline + DLSSNRRenderer (C++20/OpenMP)   │
