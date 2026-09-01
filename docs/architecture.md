@@ -37,15 +37,17 @@ The **Adobe DLSS 5 Neural Video Plugin** bridges After Effects ARGB 8/16/32-bpc 
 
 1. **Adobe PiPL Integration**:
    - Compiles `.r` resource definitions through `PiPLtool.exe` to generate binary resources embedded in `.rc`.
-   - Strictly synchronizes `out_flags = 0x2000000` and `out_flags2 = 0x8001400` across both resource and runtime layers.
+   - Strictly synchronizes `out_flags = 0x2000000` and `out_flags2 = 0x1400` across both resource and runtime layers.
    - Does not advertise pixel independence because neural reconstruction depends on neighboring pixels.
 
 2. **Stable Frame Buffers**:
    - RGBA8 bridge buffers are cached and resized only when the frame dimensions change.
    - Float and 16-bpc host values are read directly during output composition; an exact zero-mix bypass copies the original active pixels.
+   - Common 8-bit processed output uses a direct byte path, and CPU pixel work is capped at four workers.
 
-3. **Multi-Frame Rendering (MFR) Safety**:
-   - Runtime calls are synchronized because the bridge owns one neural feature context.
+3. **Serialized Runtime Scheduling**:
+   - The effect does not advertise concurrent frame rendering because the bridge owns one neural feature context.
+   - Runtime calls remain synchronized to protect the shared feature and prevent competing frame sizes from thrashing it.
    - Temporal history is reused only for sequential frames from the same effect instance. Instance changes and out-of-order frames force a reset.
 
 4. **Host Resource Ownership**:

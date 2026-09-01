@@ -231,7 +231,7 @@ About(
     static_cast<void>(output);
     PF_SPRINTF(
         out_data->return_msg,
-        "%s v1.0.2\r\nNVIDIA DLSS 5 Neural Rendering Filter for After Effects & Premiere Pro.\r\nBased on TensorRT NGX Feature 18 Architecture.",
+        "%s v1.0.3\r\nNVIDIA DLSS 5 Neural Rendering Filter for After Effects & Premiere Pro.\r\nBased on TensorRT NGX Feature 18 Architecture.",
         PLUG_IN_NAME);
     return PF_Err_NONE;
 }
@@ -248,9 +248,9 @@ GlobalSetup(
     static_cast<void>(output);
     LogMessage("GlobalSetup called");
     PF_Err err = PF_Err_NONE;
-    out_data->my_version = PF_VERSION(1, 0, 2, PF_Stage_RELEASE, 1);
+    out_data->my_version = PF_VERSION(1, 0, 3, PF_Stage_RELEASE, 1);
     out_data->out_flags = PF_OutFlag_DEEP_COLOR_AWARE;
-    out_data->out_flags2 = PF_OutFlag2_FLOAT_COLOR_AWARE | PF_OutFlag2_SUPPORTS_SMART_RENDER | PF_OutFlag2_SUPPORTS_THREADED_RENDERING;
+    out_data->out_flags2 = PF_OutFlag2_FLOAT_COLOR_AWARE | PF_OutFlag2_SUPPORTS_SMART_RENDER;
 
     return err;
 }

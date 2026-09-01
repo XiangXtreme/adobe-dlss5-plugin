@@ -236,6 +236,21 @@ void TestIntensityOverdrive() {
         HostColorFormat::AE_ARGB_8u,
         parameters));
     CHECK((output == std::array<uint8_t, 4>{ 255, 140, 80, 60 }));
+
+    parameters.outputMix = 0.25f;
+    output.fill(0);
+    CHECK(PixelPipeline::WriteFromRgba8(
+        input.data(),
+        processed.data(),
+        processed.size(),
+        output.data(),
+        1,
+        1,
+        4,
+        4,
+        HostColorFormat::AE_ARGB_8u,
+        parameters));
+    CHECK((output == std::array<uint8_t, 4>{ 255, 110, 95, 90 }));
 }
 
 } // namespace

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+- Prevented concurrent Adobe frame requests from competing for the single neural runtime context.
+
+### Changed
+- Limited CPU pixel conversion and composition to four workers, with single-threaded processing for small previews.
+- Added a direct 8-bit processed-output path for the common After Effects and Premiere Pro workflow.
+
 ## [1.0.2] - 2026-09-01
 
 ### Fixed

@@ -27,9 +27,9 @@ Provides AI-powered same-resolution neural reconstruction, micro-structure synth
   - `Difference x10`: 10x amplified difference view to inspect subtle neural details.
   - `Left / Right Compare`: Real-time split-screen side-by-side comparison.
 - **🚀 Ultra High Performance**:
-  - OpenMP parallel SIMD pixel conversion.
+  - Bounded OpenMP pixel conversion with a direct 8-bit processed-output path.
   - No steady-state frame-buffer allocation after the current resolution is cached.
-  - Synchronized Multi-Frame Rendering (MFR) with history reset on instance switches and out-of-order frames.
+  - Serialized Adobe frame scheduling protects the single neural context and avoids competing runtime resizes.
 
 ---
 

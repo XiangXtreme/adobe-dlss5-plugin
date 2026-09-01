@@ -5,10 +5,16 @@
 #include <cstring>
 #include <limits>
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 namespace {
 
 constexpr float kByteMax = 255.0f;
 constexpr float kAe16White = 32768.0f;
+constexpr uint64_t kParallelPixelThreshold = 512ULL * 512ULL;
+constexpr int kMaxPixelWorkers = 4;
 
 struct Rgb {
     float r;
@@ -79,6 +85,30 @@ uint8_t UnitToByte(float value) noexcept {
 uint16_t UnitToAe16(float value) noexcept {
     const float scaled = std::clamp(FiniteOrZero(value), 0.0f, 1.0f) * kAe16White;
     return static_cast<uint16_t>(std::lround(scaled));
+}
+
+int PixelWorkerCount(uint32_t width, uint32_t height) noexcept {
+#ifdef _OPENMP
+    const uint64_t pixelCount = static_cast<uint64_t>(width) * height;
+    if (pixelCount < kParallelPixelThreshold) {
+        return 1;
+    }
+    return (std::min)(kMaxPixelWorkers, omp_get_max_threads());
+#else
+    static_cast<void>(width);
+    static_cast<void>(height);
+    return 1;
+#endif
+}
+
+uint8_t BlendByte(uint8_t original, uint8_t processed, float factor) noexcept {
+    if (factor == 1.0f) {
+        return processed;
+    }
+    const float value = static_cast<float>(original) +
+        (static_cast<float>(processed) - static_cast<float>(original)) * factor;
+    const float clamped = std::clamp(value, 0.0f, kByteMax);
+    return static_cast<uint8_t>(clamped + 0.5f);
 }
 
 Rgb ComposeOutput(
@@ -173,8 +203,9 @@ bool ConvertToRgba8(
     }
 
     const auto* source = static_cast<const uint8_t*>(inputPixels);
+    const int workerCount = PixelWorkerCount(width, height);
 
-    #pragma omp parallel for schedule(static)
+    #pragma omp parallel for schedule(static) if(workerCount > 1) num_threads(workerCount)
     for (int y = 0; y < static_cast<int>(height); ++y) {
         const auto* sourceRow = source + static_cast<intptr_t>(y) * rowPitch;
         auto* destinationRow = rgbaPixels + static_cast<size_t>(y) * width * 4;
@@ -254,9 +285,10 @@ bool WriteFromRgba8(
     const auto* original = static_cast<const uint8_t*>(originalPixels);
     auto* output = static_cast<uint8_t*>(outputPixels);
     const size_t activeRowBytes = static_cast<size_t>(width) * BytesPerPixel(format);
+    const int workerCount = PixelWorkerCount(width, height);
 
     if (IsExactBypass(params)) {
-        #pragma omp parallel for schedule(static)
+        #pragma omp parallel for schedule(static) if(workerCount > 1) num_threads(workerCount)
         for (int y = 0; y < static_cast<int>(height); ++y) {
             std::memmove(
                 output + static_cast<intptr_t>(y) * outputRowPitch,
@@ -266,7 +298,40 @@ bool WriteFromRgba8(
         return true;
     }
 
-    #pragma omp parallel for schedule(static)
+    if (params.outputView == DLSS_VIEW_PROCESSED &&
+        (format == HostColorFormat::AE_ARGB_8u || format == HostColorFormat::PR_BGRA_8u))
+    {
+        const float mix = std::clamp(FiniteOrZero(params.outputMix), 0.0f, 1.0f);
+        const float blendFactor = DLSSIntensityGain(params.intensity) * mix;
+
+        #pragma omp parallel for schedule(static) if(workerCount > 1) num_threads(workerCount)
+        for (int y = 0; y < static_cast<int>(height); ++y) {
+            const auto* originalRow = original + static_cast<intptr_t>(y) * originalRowPitch;
+            const auto* processedRow = processedRgba + static_cast<size_t>(y) * width * 4;
+            auto* outputRow = output + static_cast<intptr_t>(y) * outputRowPitch;
+
+            for (uint32_t x = 0; x < width; ++x) {
+                const auto* sourcePixel = originalRow + static_cast<size_t>(x) * 4;
+                const auto* processedPixel = processedRow + static_cast<size_t>(x) * 4;
+                auto* destinationPixel = outputRow + static_cast<size_t>(x) * 4;
+
+                if (format == HostColorFormat::AE_ARGB_8u) {
+                    destinationPixel[0] = sourcePixel[0];
+                    destinationPixel[1] = BlendByte(sourcePixel[1], processedPixel[0], blendFactor);
+                    destinationPixel[2] = BlendByte(sourcePixel[2], processedPixel[1], blendFactor);
+                    destinationPixel[3] = BlendByte(sourcePixel[3], processedPixel[2], blendFactor);
+                } else {
+                    destinationPixel[0] = BlendByte(sourcePixel[0], processedPixel[2], blendFactor);
+                    destinationPixel[1] = BlendByte(sourcePixel[1], processedPixel[1], blendFactor);
+                    destinationPixel[2] = BlendByte(sourcePixel[2], processedPixel[0], blendFactor);
+                    destinationPixel[3] = sourcePixel[3];
+                }
+            }
+        }
+        return true;
+    }
+
+    #pragma omp parallel for schedule(static) if(workerCount > 1) num_threads(workerCount)
     for (int y = 0; y < static_cast<int>(height); ++y) {
         const auto* originalRow = original + static_cast<intptr_t>(y) * originalRowPitch;
         const auto* processedRow = processedRgba + static_cast<size_t>(y) * width * 4;
