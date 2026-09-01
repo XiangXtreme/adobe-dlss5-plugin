@@ -39,10 +39,10 @@ Provides AI-powered same-resolution neural reconstruction, micro-structure synth
 | :--- | :--- | :--- | :--- |
 | **Enable DLSS Neural Rendering** | Checkbox | `True` | Master bypass switch for the effect. |
 | **Style** | Popup | `Default` | Rendering style (`Default`, `Natural`, `Cinema`, `Style 3`). |
-| **Intensity** | Float Slider | `1.00` | Strength of AI reconstruction (0.0 to 2.5). |
-| **Local Tone** | Float Slider | `1.00` | Micro-contrast and local tonal enhancement (0.0 to 2.5). |
-| **Local Structure** | Float Slider | `1.00` | Fine texture synthesis and edge reconstruction (0.0 to 2.5). |
-| **Skin Structure** | Float Slider | `1.00` | Skin tone texture preservation weight (0.0 to 2.5). |
+| **Intensity** | Float Slider | `1.00` | Strength of AI reconstruction (0.0 to 5.0). |
+| **Local Tone** | Float Slider | `1.00` | Micro-contrast and local tonal enhancement (0.0 to 5.0). |
+| **Local Structure** | Float Slider | `1.00` | Fine texture synthesis and edge reconstruction (0.0 to 5.0). |
+| **Skin Structure** | Float Slider | `1.00` | Skin tone texture preservation weight (0.0 to 5.0). |
 | **Output View** | Popup | `Processed` | Output mode (`Processed`, `Difference x10`, `Left / Right Compare`). |
 | **Output Mix** | Float Slider | `1.00` | Wet/Dry mix between processed result and original frame. |
 
@@ -51,7 +51,7 @@ Provides AI-powered same-resolution neural reconstruction, micro-structure synth
 ## 📦 Installation
 
 ### Option 1: 1-Click Installer (Recommended)
-1. Download the release ZIP `Adobe-DLSS5-Neural-Video-v1.0.0-Win64.zip` from [Releases](https://github.com/XiangXtreme/adobe-dlss5-plugin/releases).
+1. Download the release ZIP `Adobe-DLSS5-Neural-Video-v1.0.1-Win64.zip` from [Releases](https://github.com/XiangXtreme/adobe-dlss5-plugin/releases).
 2. Unzip and run **`Install.bat`**.
 3. Launch After Effects / Premiere Pro and find the plugin under:
    `Effect > DLSS Experimental > DLSS Neural Video`

@@ -10,17 +10,17 @@ Release packaging uses a tested binary component archive containing:
 - `dlssnr_host.dll`
 - `nvngx_dlssnr.dll`
 
-The component archive is stored in the `runtime-v1.0.0` prerelease. Its filename and SHA-256 digest are pinned in `.github/workflows/package-release.yml`. The workflow stops before packaging if the digest or required file list does not match.
+The component archive is stored in the `runtime-v1.0.1` prerelease. Its filename and SHA-256 digest are pinned in `.github/workflows/package-release.yml`. The workflow stops before packaging if the digest or required file list does not match.
 
 ## Publish a Version
 
 Run the workflow manually:
 
 ```powershell
-gh workflow run package-release.yml -f version=1.0.0
+gh workflow run package-release.yml -f version=1.0.1
 ```
 
-Alternatively, push a semantic version tag such as `v1.0.0`. The workflow validates the version, downloads and verifies the component archive, runs `scripts/package-release.ps1`, checks the ZIP contents, and creates or updates the matching GitHub Release.
+Alternatively, push a semantic version tag such as `v1.0.1`. The workflow validates the version, downloads and verifies the component archive, runs `scripts/package-release.ps1`, checks the ZIP contents, and creates or updates the matching GitHub Release.
 
 ## Update Binary Components
 

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 project(Adobe_DLSS5_Neural_Video
-    VERSION 1.0.0
+    VERSION 1.0.1
     DESCRIPTION "NVIDIA DLSS 5 Neural Rendering Plugin for Adobe After Effects & Premiere Pro"
     LANGUAGES C CXX
 )

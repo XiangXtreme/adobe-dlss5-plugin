@@ -6,7 +6,7 @@ on:
       version:
         description: Release version without the v prefix
         required: true
-        default: 1.0.0
+        default: 1.0.1
         type: string
   push:
     tags:
@@ -20,9 +20,9 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  RUNTIME_RELEASE_TAG: runtime-v1.0.0
-  RUNTIME_ARCHIVE_NAME: Adobe-DLSS5-Runtime-v1.0.0-Win64.zip
-  RUNTIME_ARCHIVE_SHA256: 62BF7E2D75E96562E6A2B279A1B4D12EC769AC8B7A13A7A98AB49EEF38EAF476
+  RUNTIME_RELEASE_TAG: runtime-v1.0.1
+  RUNTIME_ARCHIVE_NAME: Adobe-DLSS5-Runtime-v1.0.1-Win64.zip
+  RUNTIME_ARCHIVE_SHA256: 34876E9210ABB023E6B2852DE33EA85766EBF667CE53AA67A60D550503CF9618
 
 jobs:
   package-release:

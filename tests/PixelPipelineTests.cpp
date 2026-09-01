@@ -207,8 +207,8 @@ void TestNegativeRowPitch() {
 
 void TestNeuralControlRange() {
     CHECK(NormalizeDLSSControl(-0.5f) == DLSS_CONTROL_MIN);
-    CHECK(NormalizeDLSSControl(2.25f) == 2.25f);
-    CHECK(NormalizeDLSSControl(3.0f) == DLSS_CONTROL_MAX);
+    CHECK(NormalizeDLSSControl(4.5f) == 4.5f);
+    CHECK(NormalizeDLSSControl(6.0f) == DLSS_CONTROL_MAX);
     CHECK(NormalizeDLSSControl(std::numeric_limits<float>::infinity()) == DLSS_CONTROL_DEFAULT);
     CHECK(NormalizeDLSSControl(std::numeric_limits<float>::quiet_NaN()) == DLSS_CONTROL_DEFAULT);
 }

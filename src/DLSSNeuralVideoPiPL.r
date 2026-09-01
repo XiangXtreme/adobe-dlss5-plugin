@@ -41,7 +41,7 @@ resource 'PiPL' (16000) {
 		},
 		/* [8] */
 		AE_Effect_Version {
-			525825	/* 1.0.0 release, build 1 */
+			527873	/* 1.0.1 release, build 1 */
 		},
 		/* [9] */
 		AE_Effect_Info_Flags {
@@ -64,7 +64,7 @@ resource 'PiPL' (16000) {
 		},
 		/* [13] */
 		AE_Effect_Support_URL {
-			"https://github.com/SAOG0721/DaVinci-Resolve-DLSS5"
+			"https://github.com/XiangXtreme/adobe-dlss5-plugin"
 		}
 	}
 };

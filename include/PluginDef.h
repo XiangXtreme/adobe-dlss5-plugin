@@ -15,7 +15,7 @@
 #endif
 
 inline constexpr float DLSS_CONTROL_MIN = 0.0f;
-inline constexpr float DLSS_CONTROL_MAX = 2.5f;
+inline constexpr float DLSS_CONTROL_MAX = 5.0f;
 inline constexpr float DLSS_CONTROL_DEFAULT = 1.0f;
 
 inline float NormalizeDLSSControl(float value) noexcept {

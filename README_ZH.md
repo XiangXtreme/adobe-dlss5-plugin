@@ -39,10 +39,10 @@
 | :--- | :--- | :--- | :--- |
 | **Enable DLSS Neural Rendering** | 复选框 | `开 (True)` | 插件全局总开关。 |
 | **Style** | 下拉菜单 | `Default` | 渲染风格（Default / Natural / Cinema / Style 3）。 |
-| **Intensity** | 浮点滑块 | `1.00` | AI 重构与增强强度（范围 0.0 ~ 2.5）。 |
-| **Local Tone** | 浮点滑块 | `1.00` | 局部对比度与明暗层次增强（范围 0.0 ~ 2.5）。 |
-| **Local Structure** | 浮点滑块 | `1.00` | 微观纹理重建与边缘锐化（范围 0.0 ~ 2.5）。 |
-| **Skin Structure** | 浮点滑块 | `1.00` | 人像肤质细节与质感保护权重（范围 0.0 ~ 2.5）。 |
+| **Intensity** | 浮点滑块 | `1.00` | AI 重构与增强强度（范围 0.0 ~ 5.0）。 |
+| **Local Tone** | 浮点滑块 | `1.00` | 局部对比度与明暗层次增强（范围 0.0 ~ 5.0）。 |
+| **Local Structure** | 浮点滑块 | `1.00` | 微观纹理重建与边缘锐化（范围 0.0 ~ 5.0）。 |
+| **Skin Structure** | 浮点滑块 | `1.00` | 人像肤质细节与质感保护权重（范围 0.0 ~ 5.0）。 |
 | **Output View** | 下拉菜单 | `Processed` | 输出视图（处理结果 / 10倍差异对比 / 左右分屏对比）。 |
 | **Output Mix** | 浮点滑块 | `1.00` | 处理结果与原始画面的混合比率 (0.0 ~ 1.0)。 |
 
@@ -51,7 +51,7 @@
 ## 📦 安装方法
 
 ### 方式一：一键自动安装（推荐）
-1. 从 [Releases](https://github.com/XiangXtreme/adobe-dlss5-plugin/releases) 页面下载发行包压缩包 `Adobe-DLSS5-Neural-Video-v1.0.0-Win64.zip`。
+1. 从 [Releases](https://github.com/XiangXtreme/adobe-dlss5-plugin/releases) 页面下载发行包压缩包 `Adobe-DLSS5-Neural-Video-v1.0.1-Win64.zip`。
 2. 解压后，双击运行 **`Install.bat`**。
 3. 打开 After Effects 或 Premiere Pro，在以下位置找到插件：
    **`效果 (Effect) > DLSS Experimental > DLSS Neural Video`**

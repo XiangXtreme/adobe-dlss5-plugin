@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2026-09-01
+
+### Changed
+- Expanded `Intensity`, `Local Tone`, `Local Structure`, and `Skin Structure` to a 0.0 to 5.0 range.
+
 ## [1.0.0] - 2026-09-01
 
 ### Added
