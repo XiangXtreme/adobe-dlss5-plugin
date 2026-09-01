@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.0.3] - 2026-09-01
 
 ### Fixed
 - Prevented concurrent Adobe frame requests from competing for the single neural runtime context.
