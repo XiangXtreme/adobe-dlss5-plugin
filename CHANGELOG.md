@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Expanded `Intensity`, `Local Tone`, `Local Structure`, and `Skin Structure` to a 0.0 to 5.0 range.
+- Updated installers to use Adobe's shared MediaCore plugin directory by default and remove legacy copies.
 
 ## [1.0.0] - 2026-09-01
 

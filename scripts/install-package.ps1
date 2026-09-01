@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 [CmdletBinding()]
 param(
-    [string]$Destination = (Join-Path ${env:CommonProgramFiles} "Adobe\Plug-ins\7.0\MediaCore")
+    [string]$Destination = (Join-Path ${env:ProgramFiles} "Adobe\Common\Plug-ins\7.0\MediaCore")
 )
 
 $ErrorActionPreference = "Stop"
@@ -12,6 +12,12 @@ function Test-IsAdministrator {
     return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
+$standardDestination = [IO.Path]::GetFullPath(
+    (Join-Path ${env:ProgramFiles} "Adobe\Common\Plug-ins\7.0\MediaCore")
+)
+$legacyDestination = [IO.Path]::GetFullPath(
+    (Join-Path ${env:CommonProgramFiles} "Adobe\Plug-ins\7.0\MediaCore")
+)
 $programFilesRoots = @(${env:ProgramFiles}, ${env:CommonProgramFiles}) |
     Where-Object { $_ } |
     ForEach-Object { [IO.Path]::GetFullPath($_).TrimEnd('\') + '\' }
@@ -43,6 +49,15 @@ foreach ($fileName in $fileNames) {
 New-Item -ItemType Directory -Path $destinationPath -Force | Out-Null
 foreach ($fileName in $fileNames) {
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot $fileName) -Destination $destinationPath -Force
+}
+
+if ($destinationPath -eq $standardDestination -and $legacyDestination -ne $standardDestination) {
+    foreach ($fileName in $fileNames) {
+        $legacyPath = Join-Path $legacyDestination $fileName
+        if (Test-Path -LiteralPath $legacyPath -PathType Leaf) {
+            Remove-Item -LiteralPath $legacyPath -Force
+        }
+    }
 }
 
 Write-Host "Installed DLSS Neural Video to $destinationPath" -ForegroundColor Green

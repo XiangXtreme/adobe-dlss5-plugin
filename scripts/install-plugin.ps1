@@ -3,7 +3,7 @@
 param(
     [ValidateSet("Debug", "Release", "RelWithDebInfo", "MinSizeRel")]
     [string]$Configuration = "Release",
-    [string]$Destination = (Join-Path ${env:CommonProgramFiles} "Adobe\Plug-ins\7.0\MediaCore")
+    [string]$Destination = (Join-Path ${env:ProgramFiles} "Adobe\Common\Plug-ins\7.0\MediaCore")
 )
 
 $ErrorActionPreference = "Stop"
@@ -40,6 +40,12 @@ foreach ($sourceFile in $sourceFiles) {
     }
 }
 
+$standardDestination = [IO.Path]::GetFullPath(
+    (Join-Path ${env:ProgramFiles} "Adobe\Common\Plug-ins\7.0\MediaCore")
+)
+$legacyDestination = [IO.Path]::GetFullPath(
+    (Join-Path ${env:CommonProgramFiles} "Adobe\Plug-ins\7.0\MediaCore")
+)
 $programFilesRoots = @(${env:ProgramFiles}, ${env:CommonProgramFiles}) |
     Where-Object { $_ } |
     ForEach-Object { [IO.Path]::GetFullPath($_).TrimEnd('\') + '\' }
@@ -55,6 +61,15 @@ if ($requiresElevation -and -not (Test-IsAdministrator)) {
 New-Item -ItemType Directory -Path $destinationPath -Force | Out-Null
 foreach ($sourceFile in $sourceFiles) {
     Copy-Item -LiteralPath $sourceFile -Destination $destinationPath -Force
+}
+
+if ($destinationPath -eq $standardDestination -and $legacyDestination -ne $standardDestination) {
+    foreach ($sourceFile in $sourceFiles) {
+        $legacyPath = Join-Path $legacyDestination (Split-Path -Leaf $sourceFile)
+        if (Test-Path -LiteralPath $legacyPath -PathType Leaf) {
+            Remove-Item -LiteralPath $legacyPath -Force
+        }
+    }
 }
 
 Write-Host "Installed DLSS Neural Video to $destinationPath" -ForegroundColor Green
