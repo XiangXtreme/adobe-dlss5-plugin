@@ -5,10 +5,13 @@
 #include <algorithm>
 #include <cmath>
 #include <filesystem>
-#include <fstream>
 #include <limits>
 #include <string>
 #include <vector>
+
+#if defined(_DEBUG)
+#include <fstream>
+#endif
 
 namespace fs = std::filesystem;
 
@@ -21,6 +24,7 @@ using DlssnrResizeFn = int (*)(int, int, int);
 
 namespace {
 
+#if defined(_DEBUG)
 void LogRenderer(const std::string& message) {
     OutputDebugStringA(("[DLSS_Renderer] " + message + "\n").c_str());
 
@@ -44,6 +48,10 @@ void LogRenderer(const std::string& message) {
         // Diagnostics must never interrupt host rendering.
     }
 }
+#define DLSS_RENDERER_LOG(message) LogRenderer(message)
+#else
+#define DLSS_RENDERER_LOG(message) ((void)0)
+#endif
 
 std::wstring GetModuleDirectory(HMODULE module) {
     std::vector<wchar_t> buffer(32768);
@@ -187,13 +195,13 @@ private:
                 nullptr,
                 LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
             if (m_module) {
-                LogRenderer("Loaded runtime host from: " + hostPath.string());
+                DLSS_RENDERER_LOG("Loaded runtime host from: " + hostPath.string());
                 break;
             }
         }
 
         if (!m_module) {
-            LogRenderer("Unable to locate dlssnr_host.dll");
+            DLSS_RENDERER_LOG("Unable to locate dlssnr_host.dll");
             return false;
         }
 
@@ -205,7 +213,7 @@ private:
         m_resize = reinterpret_cast<DlssnrResizeFn>(GetProcAddress(m_module, "dlssnr_resize"));
 
         if (!m_init || !m_createFeature || !m_process || !m_setOptions || !m_shutdown || !m_resize) {
-            LogRenderer("Runtime host is missing required exports");
+            DLSS_RENDERER_LOG("Runtime host is missing required exports");
             Shutdown();
             return false;
         }
@@ -225,6 +233,7 @@ private:
     }
 
     static std::wstring GetRuntimeLogPath() {
+#if defined(_DEBUG)
         wchar_t localAppData[32768] = {};
         const DWORD length = GetEnvironmentVariableW(
             L"LOCALAPPDATA",
@@ -241,6 +250,9 @@ private:
         } catch (...) {
             return {};
         }
+#else
+        return {};
+#endif
     }
 
     bool EnsureInitialized(int width, int height) {
@@ -253,19 +265,19 @@ private:
         if (!m_featureInitialized) {
             const std::wstring modelPath = GetRuntimeModelPath();
             if (modelPath.empty()) {
-                LogRenderer("Unable to locate nvngx_dlssnr.dll");
+                DLSS_RENDERER_LOG("Unable to locate nvngx_dlssnr.dll");
                 return false;
             }
 
             const std::wstring logPath = GetRuntimeLogPath();
             if (m_init(width, height, preset, modelPath.c_str(), logPath.c_str()) == 0) {
-                LogRenderer("dlssnr_init failed");
+                DLSS_RENDERER_LOG("dlssnr_init failed");
                 return false;
             }
             m_runtimeInitialized = true;
 
             if (m_createFeature(width, height, preset) == 0) {
-                LogRenderer("dlssnr_create_feature failed");
+                DLSS_RENDERER_LOG("dlssnr_create_feature failed");
                 Shutdown();
                 return false;
             }
@@ -274,19 +286,19 @@ private:
             m_width = width;
             m_height = height;
             AllocateZeroGuidanceBuffers(width, height);
-            LogRenderer("Initialized neural runtime for " + std::to_string(width) + "x" + std::to_string(height));
+            DLSS_RENDERER_LOG("Initialized neural runtime for " + std::to_string(width) + "x" + std::to_string(height));
             return true;
         }
 
         if (m_width != width || m_height != height) {
             if (m_resize(width, height, preset) == 0) {
-                LogRenderer("dlssnr_resize failed");
+                DLSS_RENDERER_LOG("dlssnr_resize failed");
                 return false;
             }
             m_width = width;
             m_height = height;
             AllocateZeroGuidanceBuffers(width, height);
-            LogRenderer("Resized neural runtime to " + std::to_string(width) + "x" + std::to_string(height));
+            DLSS_RENDERER_LOG("Resized neural runtime to " + std::to_string(width) + "x" + std::to_string(height));
         }
 
         return true;
@@ -401,7 +413,7 @@ bool DLSSNRRenderer::ProcessFrame(
             m_outRgbaBuffer.data(),
             resetHistory))
     {
-        LogRenderer("Neural processing failed");
+        DLSS_RENDERER_LOG("Neural processing failed");
         return false;
     }
 

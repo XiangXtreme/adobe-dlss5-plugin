@@ -20,8 +20,12 @@
 #include <cstdint>
 #include <memory>
 #include <mutex>
+#include <string>
+
+#if defined(_DEBUG)
 #include <fstream>
 #include <chrono>
+#endif
 
 static std::unique_ptr<DLSSNRRenderer> g_dlssRenderer;
 static std::mutex g_pluginMutex;
@@ -36,6 +40,7 @@ struct TemporalRenderState {
 
 static TemporalRenderState g_temporalState;
 
+#if defined(_DEBUG)
 static void LogMessage(const std::string& msg) {
     OutputDebugStringA(("[DLSS_Plugin] " + msg + "\n").c_str());
     try {
@@ -53,6 +58,10 @@ static void LogMessage(const std::string& msg) {
         }
     } catch (...) {}
 }
+#define DLSS_LOG(message) LogMessage(message)
+#else
+#define DLSS_LOG(message) ((void)0)
+#endif
 
 template <typename Reader>
 static PF_Err ReadParameter(PF_InData* in_data, A_long parameterId, Reader&& reader) {
@@ -141,7 +150,7 @@ static PF_Err GetHostColorFormat(
             format = HostColorFormat::PR_BGRA_32f;
             return PF_Err_NONE;
         default:
-            LogMessage("Unsupported host pixel format: " + std::to_string(pixelFormat));
+            DLSS_LOG("Unsupported host pixel format: " + std::to_string(pixelFormat));
             return PF_Err_BAD_CALLBACK_PARAM;
     }
 }
@@ -246,7 +255,7 @@ GlobalSetup(
     static_cast<void>(in_data);
     static_cast<void>(params);
     static_cast<void>(output);
-    LogMessage("GlobalSetup called");
+    DLSS_LOG("GlobalSetup called");
     PF_Err err = PF_Err_NONE;
     out_data->my_version = PF_VERSION(1, 0, 3, PF_Stage_RELEASE, 1);
     out_data->out_flags = PF_OutFlag_DEEP_COLOR_AWARE;
@@ -265,7 +274,7 @@ ParamsSetup(
     static_cast<void>(in_data);
     static_cast<void>(params);
     static_cast<void>(output);
-    LogMessage("ParamsSetup called");
+    DLSS_LOG("ParamsSetup called");
     PF_Err err = PF_Err_NONE;
     PF_ParamDef def;
 
@@ -375,7 +384,7 @@ ParamsSetup(
     );
 
     out_data->num_params = DLSS_NUM_PARAMS;
-    LogMessage("ParamsSetup completed, num_params = " + std::to_string(out_data->num_params));
+    DLSS_LOG("ParamsSetup completed, num_params = " + std::to_string(out_data->num_params));
     return err;
 }
 
@@ -448,7 +457,7 @@ SmartRender(
                     ERR(PF_COPY(input_worldP, output_worldP, nullptr, nullptr));
                 }
             } catch (...) {
-                LogMessage("Exception in SmartRender");
+                DLSS_LOG("Exception in SmartRender");
                 err = PF_Err_INTERNAL_STRUCT_DAMAGED;
             }
         }
@@ -565,7 +574,7 @@ PF_Err EffectMain(
                 break;
         }
     } catch (...) {
-        LogMessage("Exception in EffectMain");
+        DLSS_LOG("Exception in EffectMain");
         err = PF_Err_INTERNAL_STRUCT_DAMAGED;
     }
 
